@@ -7,11 +7,14 @@ import com.lysf.dto.Result;
 
 import com.lysf.entity.User;
 import com.lysf.service.UserService;
+import com.lysf.util.DateTimeUtil;
 import com.lysf.util.MD5Util;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.UUID;
 
 @Service("userService")
@@ -38,18 +41,27 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Result register(User user) {
-        Result checkValidResponse = this.checkValid(user.getUsername(), Const.USERNAME);
+    public Result register(String username, String password, String phone, String email, String qustion, String answer) {
+        Result checkValidResponse = this.checkValid(username, Const.USERNAME);
         if (!checkValidResponse.isSuccess()){
             return checkValidResponse;
         }
-        checkValidResponse = this.checkValid(user.getEmail(),Const.EMAIL);
+        checkValidResponse = this.checkValid(email,Const.EMAIL);
         if (!checkValidResponse.isSuccess()){
             return checkValidResponse;
         }
         //MD5加密 未使用
-        String md5 = MD5Util.MD5EncodeUtf8(user.getPassword());
+        String md5 = MD5Util.MD5EncodeUtf8(password);
+        User user = new User();
+        user.setUsername(username);
         user.setPassword(md5);
+        user.setPhone(phone);
+        user.setEmail(email);
+        user.setQuestion(qustion);
+        user.setAnswer(answer);
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        user.setCreateTime(DateTimeUtil.strToDate(df.format(new Date())));
+        user.setUpdateTime(DateTimeUtil.strToDate(df.format(new Date())));
         //使用insertSelective方法进行信息的填充，可以自动过滤掉那些空变量
         user.setRole(Const.Role.ROLE_CUSTOMER);
         int i = userMapper.insertSelective(user);
@@ -59,6 +71,7 @@ public class UserServiceImpl implements UserService {
         return Result.createSuccessMessage("创建成功");
     }
 
+    @Override
     public Result<String> checkValid(String str, String type){
         if (StringUtils.isNotBlank(type)){
             if (Const.USERNAME.equals(type)){
@@ -79,6 +92,7 @@ public class UserServiceImpl implements UserService {
         return Result.createSuccessMessage("检校成功");
     }
 
+    @Override
     public Result selectQuestion(String username){
         Result checkValidResponse = this.checkValid(username,Const.USERNAME);
         if (checkValidResponse.isSuccess()){
@@ -91,7 +105,8 @@ public class UserServiceImpl implements UserService {
         return Result.createErrorMessage("密保问题为空");
     }
 
-    public Result checkAnswer(String username,String question,String answer){
+    @Override
+    public Result checkAnswer(String username, String question, String answer){
         int i = userMapper.checkAnswer(username,question,answer);
         if (i==0){
             return Result.createErrorMessage("密保答案错误");
@@ -102,7 +117,8 @@ public class UserServiceImpl implements UserService {
     }
 
 
-    public Result forgetRestPassword(String username,String passwordNew,String forgetToken){
+    @Override
+    public Result forgetRestPassword(String username, String passwordNew, String forgetToken){
         if (StringUtils.isBlank(forgetToken)){
             return Result.createErrorMessage("参数错误，token需要传递");
         }
@@ -126,7 +142,8 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    public Result restPassword(User user,String passwordOld,String passwordNew){
+    @Override
+    public Result restPassword(User user, String passwordOld, String passwordNew){
         int i = userMapper.checkPasswordById(MD5Util.MD5EncodeUtf8(passwordOld),user.getId());
         if (i==0){
             return Result.createErrorMessage("旧密码错误");
@@ -139,6 +156,7 @@ public class UserServiceImpl implements UserService {
         return Result.createErrorMessage("修改密码失败");
     }
 
+    @Override
     public Result updateInformation(User user){
         //username是不可以更改的
         //email也要进行检校，检校新的email是不是已经存在，并且与存在的email如果相同的话，不能是我们当前的用户的
@@ -160,6 +178,7 @@ public class UserServiceImpl implements UserService {
         return Result.createErrorMessage("用户信息更新失败");
     }
 
+    @Override
     public Result getInformation(Integer userId){
         User user = userMapper.selectByPrimaryKey(userId);
         if (user == null){

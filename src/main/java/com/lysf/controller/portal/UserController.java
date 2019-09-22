@@ -1,4 +1,4 @@
-package com.lysf.controller;
+package com.lysf.controller.portal;
 
 import com.lysf.common.Const;
 import com.lysf.dto.Result;
@@ -19,12 +19,13 @@ public class UserController {
     private UserService userService;
 
     @ResponseBody
-    @RequestMapping(value = "/login",method = RequestMethod.POST)
+    @RequestMapping(value = "/login")
     public Result login(@RequestParam("username") String username,@RequestParam("password") String password, HttpSession session){
         Result result = userService.login(username,password);
         if (result.isSuccess()){
             session.setAttribute(Const.CURRENT_USER,result.getData());
         }
+        System.out.println(username+"     "+password);
         return result;
     }
 
@@ -35,10 +36,14 @@ public class UserController {
         return Result.createSuccess();
     }
 
+
+
     @ResponseBody
-    @RequestMapping(value = "/register",method = RequestMethod.POST)
-    public Result register(@RequestBody User user){
-        return userService.register(user);
+    @RequestMapping(value = "/register")
+    public Result register(@RequestParam("username")String username,@RequestParam("password")String password,
+                           @RequestParam("phone") String phone, @RequestParam("email") String email,
+                           @RequestParam("question")String qustion,@RequestParam("answer")String answer){
+        return userService.register(username,password,phone,email,qustion,answer);
     }
 
     @ResponseBody

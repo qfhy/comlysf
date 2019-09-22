@@ -16,7 +16,8 @@ public class FileServiceImpl implements FileService {
 
     private Logger logger = LoggerFactory.getLogger(FileServiceImpl.class);
 
-    public String upload(MultipartFile file,String path){
+    @Override
+    public String upload(MultipartFile file, String path){
         String fileName = file.getOriginalFilename();
         //获取扩展名
         String fileExtendName = fileName.substring(fileName.lastIndexOf(".")+1);

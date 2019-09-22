@@ -1,4 +1,4 @@
-package com.lysf.controller;
+package com.lysf.controller.portal;
 
 import com.lysf.dto.Result;
 import com.lysf.service.ProductService;
@@ -22,6 +22,7 @@ public class ProductController {
         return productService.getProductDetail(productId);
     }
 
+    //获取产品列表
     @ResponseBody
     @RequestMapping(value = "/list",method = RequestMethod.POST)
     public Result list(@RequestParam(value = "keyword",required = false)String keyword,

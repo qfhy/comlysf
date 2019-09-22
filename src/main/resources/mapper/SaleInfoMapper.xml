@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lysf.dao.SaleInfoMapper">
+  <resultMap id="BaseResultMap" type="com.lysf.entity.SaleInfo">
+    <constructor>
+      <idArg column="id" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="category_id" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="product_name" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="sale_num" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="sale_time" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+    </constructor>
+  </resultMap>
+
+  <!--重点知识点：自定义返回类型，property后面跟的是类中属性的名字-->
+  <resultMap type="com.lysf.Vo.SaleInfoVo" id="SaleInfoVo">
+    <result column="sumPrice" property="sumPrice" />
+    <result column="product_name" property="productName" />
+    <result column="sale_time" property="saleDate" />
+  </resultMap>
+
+
+  <sql id="Base_Column_List">
+    id, category_id, product_name, sale_num, sale_time
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from mmall_sale_info
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from mmall_sale_info
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.lysf.entity.SaleInfo">
+    insert into mmall_sale_info (id, category_id, product_name, 
+      sale_num, sale_time)
+    values (#{id,jdbcType=INTEGER}, #{categoryId,jdbcType=INTEGER}, #{productName,jdbcType=VARCHAR}, 
+      #{saleNum,jdbcType=INTEGER}, #{saleTime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.lysf.entity.SaleInfo">
+    insert into mmall_sale_info
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="categoryId != null">
+        category_id,
+      </if>
+      <if test="productName != null">
+        product_name,
+      </if>
+      <if test="saleNum != null">
+        sale_num,
+      </if>
+      <if test="saleTime != null">
+        sale_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="categoryId != null">
+        #{categoryId,jdbcType=INTEGER},
+      </if>
+      <if test="productName != null">
+        #{productName,jdbcType=VARCHAR},
+      </if>
+      <if test="saleNum != null">
+        #{saleNum,jdbcType=INTEGER},
+      </if>
+      <if test="saleTime != null">
+        #{saleTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.lysf.entity.SaleInfo">
+    update mmall_sale_info
+    <set>
+      <if test="categoryId != null">
+        category_id = #{categoryId,jdbcType=INTEGER},
+      </if>
+      <if test="productName != null">
+        product_name = #{productName,jdbcType=VARCHAR},
+      </if>
+      <if test="saleNum != null">
+        sale_num = #{saleNum,jdbcType=INTEGER},
+      </if>
+      <if test="saleTime != null">
+        sale_time = #{saleTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.lysf.entity.SaleInfo">
+    update mmall_sale_info
+    set category_id = #{categoryId,jdbcType=INTEGER},
+      product_name = #{productName,jdbcType=VARCHAR},
+      sale_num = #{saleNum,jdbcType=INTEGER},
+      sale_time = #{saleTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  
+  <select id="selectByName" parameterType="String" resultType="int">
+    select count(1)
+    from mmall_sale_info
+    where product_name = #{productName}
+  </select>
+
+
+  <!--com.lysf.Vo.SaleInfoVo-->
+  <select id="selectByNameAndDate" parameterType="String" resultMap="SaleInfoVo">
+    select sum(sale_num) AS sumPrice,product_name,sale_time
+    from mmall_sale_info
+    group by DATE_FORMAT(sale_time,'%Y%m%d')
+    having product_name = #{productName}
+    and sale_time &gt;=#{datebefore}
+    and sale_time &lt;= #{dateNow}
+  </select>
+
+  <select id="selectAllByDate" parameterType="String" resultMap="SaleInfoVo">
+    select sum(sale_num) AS sumPrice,product_name,sale_time
+    from mmall_sale_info
+    group by product_name
+    having sale_time &gt;=#{datebefore}
+    and sale_time &lt;= #{dateNow}
+  </select>
+
+</mapper>

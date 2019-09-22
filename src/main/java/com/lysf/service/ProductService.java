@@ -13,7 +13,7 @@ public interface ProductService {
 
     Result getProductList(int pageNum,int pageSize);
 
-    Result searchProduct(String productName,Integer productId,int pageNum,int pageSize);
+    Result searchProduct(String productName,int pageNum,int pageSize);
 
     Result getProductDetail(Integer productId);
 

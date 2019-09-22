@@ -31,4 +31,9 @@
             <onMismatch>DENY</onMismatch>
         </filter>
     </appender>
+
+
+    <root level="DEBUG">
+        <appender-ref ref="STDOUT" />
+    </root>
 </configuration>

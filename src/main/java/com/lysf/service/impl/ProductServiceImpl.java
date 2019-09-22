@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service("productService")
 public class ProductServiceImpl implements ProductService {
@@ -60,6 +61,7 @@ public class ProductServiceImpl implements ProductService {
         }
     }
 
+    @Override
     public Result setSaleStatus(Integer productId, Integer status){
         if (productId == null || status == null){
             return Result.createErrorCodeMessage(ResponseCode.ILLEGAL_ARGUMENT.getCode(),ResponseCode.ILLEGAL_ARGUMENT.getDesc());
@@ -75,6 +77,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
 
+    @Override
     public Result manageProductDetai(Integer productId){
         if (productId == null){
             return Result.createErrorCodeMessage(ResponseCode.ILLEGAL_ARGUMENT.getCode(),ResponseCode.ILLEGAL_ARGUMENT.getDesc());
@@ -102,7 +105,7 @@ public class ProductServiceImpl implements ProductService {
 
         //设置imageHost
         //todo imageHost的路径没有正确设值
-        productDetailVo.setImageHost(PropertiesUtil.getProperty("lysf.server.http.prefix","http://39.105.155.57:8080/comlysf/upload/"));
+        productDetailVo.setImageHost(PropertiesUtil.getProperty("lysf.server.http.prefix","http://localhost:8080/comlysf/upload/"));
         Category category = categoryMapper.selectByPrimaryKey(product.getCategoryId());
         if (category == null){
             productDetailVo.setParentCategoryId(0);
@@ -114,7 +117,8 @@ public class ProductServiceImpl implements ProductService {
         return productDetailVo;
     }
 
-    public Result getProductList(int pageNum,int pageSize){
+    @Override
+    public Result getProductList(int pageNum, int pageSize){
         PageHelper.startPage(pageNum, pageSize);
         List<Product> productList = productMapper.selectList();
         List<ProductListVo> productListVoList = Lists.newArrayList();
@@ -138,18 +142,21 @@ public class ProductServiceImpl implements ProductService {
         productListVo.setStatus(product.getStatus());
         productListVo.setSubitle(product.getSubtitle());
         //todo 设置主图服务器根路径还没弄呢，所以暂时都使用空值
-        productListVo.setImageHost(PropertiesUtil.getProperty("lysf.server.http.prefix","http://39.105.155.57:8080/comlysf/upload/"));
+        productListVo.setImageHost(PropertiesUtil.getProperty("lysf.server.http.prefix","http://localhost:8080/comlysf/upload/"));
         return productListVo;
     }
 
-    public Result searchProduct(String productName,Integer productId,int pageNum,int pageSize){
+    @Override
+    public Result searchProduct(String productName, int pageNum, int pageSize){
         PageHelper.startPage(pageNum, pageSize);
         if (StringUtils.isNotBlank(productName)){
-            productName = new StringBuilder().append("%").append(productName).append("%").toString();
+            productName = new StringBuilder().append("%").append(productName.trim().toString()).append("%").toString();
         }
-        List<Product> productList = productMapper.selectByNameAndProductId(productName,productId);
+        System.out.println(productName);
+        List<Product> productList = productMapper.selectByNameAndProductId(productName);
         List<ProductListVo> productListVoList = Lists.newArrayList();
         for (Product product : productList) {
+            System.out.println(product.getName());
             ProductListVo productListVo = setProductListVo(product);
             productListVoList.add(productListVo);
         }
@@ -158,6 +165,7 @@ public class ProductServiceImpl implements ProductService {
         return Result.createSuccess(result);
     }
 
+    @Override
     public Result getProductDetail(Integer productId){
         if (productId == null){
             return Result.createErrorCodeMessage(ResponseCode.ILLEGAL_ARGUMENT.getCode(),ResponseCode.ILLEGAL_ARGUMENT.getDesc());
@@ -170,8 +178,9 @@ public class ProductServiceImpl implements ProductService {
         return Result.createSuccess(productDetailVo);
     }
 
-    public Result getProductByKeywordCategory(String keyword,Integer categoryId,int pageNum,int pageSize,String orderBy){
-        if (StringUtils.isBlank(keyword) && categoryId == categoryId){
+    @Override
+    public Result getProductByKeywordCategory(String keyword, Integer categoryId, int pageNum, int pageSize, String orderBy){
+        if (StringUtils.isBlank(keyword) && Objects.equals(categoryId, categoryId)){
             return Result.createErrorCodeMessage(ResponseCode.ILLEGAL_ARGUMENT.getCode(),ResponseCode.ILLEGAL_ARGUMENT.getDesc());
         }
         List<Integer> categoryIdList = new ArrayList<Integer>();
@@ -206,5 +215,4 @@ public class ProductServiceImpl implements ProductService {
         pageInfo.setList(productListVoList);
         return Result.createSuccess(pageInfo);
     }
-
 }

@@ -82,7 +82,7 @@ public class ProductManageController {
     //获取商品详情
     @ResponseBody
     @RequestMapping(value = "/List",method = RequestMethod.POST)
-    public Result getList(HttpSession session, @RequestParam(value = "pageNum",defaultValue = "1") Integer pageNum,@RequestParam(value = "pageSize",defaultValue = "10") Integer pageSize){
+    public Result getList(HttpSession session,@RequestParam(value = "pageNum",defaultValue = "1") Integer pageNum,@RequestParam(value = "pageSize",defaultValue = "10") Integer pageSize){
         User user = (User) session.getAttribute(Const.CURRENT_USER);
         if(user == null){
             return Result.createErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),"用户未登录，请登录");
@@ -98,14 +98,14 @@ public class ProductManageController {
     //后台的产品搜索
     @ResponseBody
     @RequestMapping(value = "/productSearch",method = RequestMethod.POST)
-    public Result productSearch(HttpSession session,@RequestParam(value = "productName")String productName,@RequestParam(value = "productId")Integer productId, @RequestParam(value = "pageNum",defaultValue = "1") Integer pageNum,@RequestParam(value = "pageSize",defaultValue = "10") Integer pageSize){
+    public Result productSearch(HttpSession session,@RequestParam(value = "productName")String productName, @RequestParam(value = "pageNum",defaultValue = "1") Integer pageNum,@RequestParam(value = "pageSize",defaultValue = "10") Integer pageSize){
         User user = (User) session.getAttribute(Const.CURRENT_USER);
         if(user == null){
             return Result.createErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),"用户未登录，请登录");
         }
         if (userService.checkAdminRole(user).isSuccess()){
             //todo 后台的产品搜索
-            return productService.searchProduct(productName,productId,pageNum,pageSize);
+            return productService.searchProduct(productName,pageNum,pageSize);
         }else {
             return Result.createErrorMessage("没有权限进行操作");
         }

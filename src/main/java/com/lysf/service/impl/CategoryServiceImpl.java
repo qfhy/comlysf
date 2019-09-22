@@ -25,6 +25,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Autowired
     private CategoryMapper categoryMapper;
 
+    @Override
     public Result addCategory(String categoryName, Integer parentId){
         if (parentId == null || StringUtils.isBlank(categoryName)){
             return Result.createErrorMessage("添加品类参数错误");

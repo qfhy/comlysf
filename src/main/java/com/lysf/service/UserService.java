@@ -7,8 +7,6 @@ public interface UserService {
 
     Result login(String username, String password);
 
-    Result register(User user);
-
     Result<String> checkValid(String str, String type);
 
     Result selectQuestion(String username);
@@ -24,4 +22,6 @@ public interface UserService {
     Result getInformation(Integer userId);
 
     Result checkAdminRole(User user);
+
+    Result register(String username, String password, String phone, String email, String qustion, String answer);
 }
